@@ -34,7 +34,7 @@ abstract class HabitDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     HabitDatabase::class.java,
-                    "habits_tracker.db"
+                    "habits.db"
                 )
                     .fallbackToDestructiveMigration()
                     .addCallback(object : Callback() {
@@ -46,6 +46,7 @@ abstract class HabitDatabase : RoomDatabase() {
                             }
                         }
                     })
+                    .allowMainThreadQueries()
                     .build()
                 INSTANCE = instance
                 instance
