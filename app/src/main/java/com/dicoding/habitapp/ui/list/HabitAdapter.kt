@@ -1,5 +1,6 @@
 package com.dicoding.habitapp.ui.list
 
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -9,18 +10,21 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.dicoding.habitapp.R
 import com.dicoding.habitapp.data.Habit
+import java.util.*
 
-class HabitAdapter(
-    private val onClick: (Habit) -> Unit
-) : PagedListAdapter<Habit, HabitAdapter.HabitViewHolder>(DIFF_CALLBACK) {
+class HabitAdapter(private val onClick: (Habit) -> Unit) : PagedListAdapter<Habit, HabitAdapter.HabitViewHolder>(DIFF_CALLBACK) {
 
     //TODO 8 : Create and initialize ViewHolder
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HabitViewHolder {
-        throw NotImplementedError("Not yet implemented")
+        return HabitViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.habit_item, parent, false))
     }
 
     override fun onBindViewHolder(holder: HabitViewHolder, position: Int) {
         //TODO 9 : Get data and bind them to ViewHolder
+        val habit: Habit? = getItem(position)
+        if (habit != null) {
+            holder.bind(habit)
+        }
     }
 
     inner class HabitViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -36,11 +40,16 @@ class HabitAdapter(
             tvTitle.text = habit.title
             tvStartTime.text = habit.startTime
             tvMinutes.text = habit.minutesFocus.toString()
+            val priority = when(habit.priorityLevel.lowercase(Locale.getDefault())){
+                "high" -> R.drawable.ic_priority_high
+                "medium" -> R.drawable.ic_priority_medium
+                else -> R.drawable.ic_priority_low
+            }
+            ivPriority.setImageResource(priority)
             itemView.setOnClickListener {
                 onClick(habit)
             }
         }
-
     }
 
     companion object {
