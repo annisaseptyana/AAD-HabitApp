@@ -7,6 +7,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -59,9 +60,7 @@ class HabitListActivity : AppCompatActivity() {
             adapter.submitList(it)
             recycler.adapter = adapter
         }
-        viewModel.snackbarText.observe(this) {
-            showSnackBar(it)
-        }
+        viewModel.snackbarText.observe(this, Observer(this::showSnackBar))
     }
 
     //TODO 15 : Fixing bug : Menu not show and SnackBar not show when list is deleted using swipe
@@ -89,6 +88,10 @@ class HabitListActivity : AppCompatActivity() {
             }
             R.id.action_settings -> {
                 startActivity(Intent(this@HabitListActivity, SettingsActivity::class.java))
+                true
+            }
+            R.id.action_filter -> {
+                showFilteringPopUpMenu()
                 true
             }
             else -> super.onOptionsItemSelected(item)
