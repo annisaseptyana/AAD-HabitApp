@@ -5,11 +5,19 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.dicoding.habitapp.R
 import com.dicoding.habitapp.data.Habit
+import com.dicoding.habitapp.notification.NotificationWorker
 import com.dicoding.habitapp.utils.HABIT
+import com.dicoding.habitapp.utils.HABIT_ID
+import com.dicoding.habitapp.utils.NOTIFICATION_CHANNEL_ID
 
 class CountDownActivity : AppCompatActivity() {
+
+    private lateinit var oneTimeWorkRequest: OneTimeWorkRequest
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,13 +39,29 @@ class CountDownActivity : AppCompatActivity() {
         }
 
         //TODO 13 : Start and cancel One Time Request WorkManager to notify when time is up.
+        val data = Data.Builder()
+            .putInt(HABIT_ID, habit.id)
+            .putString(NOTIFICATION_CHANNEL_ID, habit.title)
+            .build()
+        oneTimeWorkRequest = OneTimeWorkRequest.Builder(NotificationWorker::class.java)
+            .setInputData(data)
+            .build()
+        val workManager = WorkManager.getInstance(this)
+        viewModel.setInitialTime(habit.minutesFocus)
+        viewModel.eventCountDownFinish.observe(this) {
+            updateButtonState(false)
+            workManager.enqueue(oneTimeWorkRequest)
+        }
 
         findViewById<Button>(R.id.btn_start).setOnClickListener {
-
+            viewModel.startTimer()
+            updateButtonState(true)
         }
 
         findViewById<Button>(R.id.btn_stop).setOnClickListener {
-
+            viewModel.resetTimer()
+            workManager.cancelWorkById(oneTimeWorkRequest.id)
+            updateButtonState(false)
         }
     }
 
